@@ -21,3 +21,6 @@ zig-out/
 *.sf2
 *.pcm
 *.mid
+
+# Raylib related files
+raylib-zig/
