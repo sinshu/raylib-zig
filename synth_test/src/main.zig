@@ -54,11 +54,34 @@ pub fn main() anyerror!void {
     defer sequencer.deinit();
 
     // Play the MIDI file.
-    sequencer.play(midi_file, false);
+    sequencer.play(midi_file, true);
+
+    var speed_x10: i32 = 10;
+    var speed_str_buf: [64]u8 = undefined;
 
     rl.SetTargetFPS(60);
 
     while (!rl.WindowShouldClose()) {
+
+        if (rl.IsKeyPressed(rl.KeyboardKey.KEY_LEFT)){
+            speed_x10 -= 1;
+            if (speed_x10 < 1) {
+                speed_x10 = 1;
+            }
+        }
+
+        if (rl.IsKeyPressed(rl.KeyboardKey.KEY_RIGHT)){
+            speed_x10 += 1;
+            if (speed_x10 > 100) {
+                speed_x10 = 100;
+            }
+        }
+
+        const speed = @intToFloat(f64, speed_x10) / 10.0;
+        speed_str_buf = mem.zeroes([64]u8);
+        const speed_str_slice = try std.fmt.bufPrint(&speed_str_buf, "{s}: x{d:.1}", .{"Playback speed", speed});
+
+        sequencer.speed = speed;
 
         if (rl.IsAudioStreamProcessed(stream)) {
             sequencer.render(&left, &right);
@@ -87,8 +110,8 @@ pub fn main() anyerror!void {
         }
 
         rl.BeginDrawing();
-        rl.ClearBackground(rl.WHITE);
-        rl.DrawText("Congrats! You created your first window!", 190, 200, 20, rl.LIGHTGRAY);
+        rl.ClearBackground(rl.LIGHTGRAY);
+        rl.DrawText(@ptrCast(*const u8, speed_str_slice), 140, 200, 50, rl.BLACK);
         rl.EndDrawing();
     }
 

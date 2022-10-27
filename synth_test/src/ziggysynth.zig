@@ -3597,6 +3597,8 @@ pub const MidiFileSequencer = struct {
     block_left: []f32,
     block_right: []f32,
 
+    speed: f64,
+
     pub fn init(allocator: Allocator, synthesizer: Synthesizer) !Self {
         const block_left = try allocator.alloc(f32, @intCast(usize, synthesizer.block_size));
         errdefer allocator.free(block_left);
@@ -3614,6 +3616,7 @@ pub const MidiFileSequencer = struct {
             .msg_index = 0,
             .block_left = block_left,
             .block_right = block_right,
+            .speed = 1.0,
         };
     }
 
@@ -3649,7 +3652,7 @@ pub const MidiFileSequencer = struct {
             if (self.block_wrote == @intCast(usize, self.synthesizer.block_size)) {
                 self.processEvents();
                 self.block_wrote = 0;
-                self.current_time += @intToFloat(f64, self.synthesizer.block_size) / @intToFloat(f64, self.synthesizer.sample_rate);
+                self.current_time += @intToFloat(f64, self.synthesizer.block_size) / @intToFloat(f64, self.synthesizer.sample_rate) * self.speed;
             }
 
             const src_rem = @intCast(usize, self.synthesizer.block_size) - self.block_wrote;
