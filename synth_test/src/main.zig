@@ -13,7 +13,7 @@ const MidiFile = ziggysynth.MidiFile;
 const MidiFileSequencer = ziggysynth.MidiFileSequencer;
 
 const sample_rate = 44100;
-const buffer_size = 4096;
+const buffer_size = 2048;
 
 pub fn main() anyerror!void {
     var gpa = heap.GeneralPurposeAllocator(.{}){};
