@@ -79,7 +79,7 @@ pub fn main() anyerror!void {
 
         const speed = @intToFloat(f64, speed_x10) / 10.0;
         speed_str_buf = mem.zeroes([64]u8);
-        const speed_str_slice = try std.fmt.bufPrint(&speed_str_buf, "{s}: x{d:.1}", .{"Playback speed", speed});
+        const speed_str_slice = try std.fmt.bufPrint(&speed_str_buf, "x{d:.1}", .{speed});
 
         sequencer.speed = speed;
 
@@ -111,7 +111,9 @@ pub fn main() anyerror!void {
 
         rl.BeginDrawing();
         rl.ClearBackground(rl.LIGHTGRAY);
-        rl.DrawText(@ptrCast(*const u8, speed_str_slice), 140, 200, 50, rl.BLACK);
+        rl.DrawText("Playback", 140, 175, 50, rl.BLACK);
+        rl.DrawText("speed", 140, 225, 50, rl.BLACK);
+        rl.DrawText(@ptrCast(*const u8, speed_str_slice), 400, 150, 150, rl.BLACK);
         rl.EndDrawing();
     }
 
