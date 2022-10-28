@@ -61,6 +61,9 @@ pub fn main() anyerror!void {
 
     rl.SetTargetFPS(60);
 
+    var left_level: f32 = 0.0;
+    var right_level: f32 = 0.0;
+
     while (!rl.WindowShouldClose()) {
 
         if (rl.IsKeyPressed(rl.KeyboardKey.KEY_LEFT)){
@@ -86,6 +89,8 @@ pub fn main() anyerror!void {
         if (rl.IsAudioStreamProcessed(stream)) {
             sequencer.render(&left, &right);
             var t: usize = 0;
+            var left_max: f32 = 0.0;
+            var right_max: f32 = 0.0;
             while (t < buffer_size) : (t += 1) {
                 var left_sample_i32: i32 = @floatToInt(i32, 32768.0 * left[t]);
                 if (left_sample_i32 < -32768) {
@@ -94,6 +99,9 @@ pub fn main() anyerror!void {
                 if (left_sample_i32 > 32767) {
                     left_sample_i32 = 32767;
                 }
+                if (left[t] > left_max) {
+                    left_max = left[t];
+                }
                 var right_sample_i32: i32 = @floatToInt(i32, 32768.0 * right[t]);
                 if (right_sample_i32 < -32768) {
                     right_sample_i32 = -32768;
@@ -101,19 +109,26 @@ pub fn main() anyerror!void {
                 if (right_sample_i32 > 32767) {
                     right_sample_i32 = 32767;
                 }
+                if (right[t] > right_max) {
+                    right_max = right[t];
+                }
                 var left_sample_i16 = @truncate(i16, left_sample_i32);
                 var right_sample_i16 = @truncate(i16, right_sample_i32);
                 buffer[2 * t] = left_sample_i16;
                 buffer[2 * t + 1] = right_sample_i16;
             }
             rl.UpdateAudioStream(stream, &buffer, buffer_size);
+            left_level = left_max;
+            right_level = right_max;
         }
 
         rl.BeginDrawing();
         rl.ClearBackground(rl.LIGHTGRAY);
-        rl.DrawText("Playback", 140, 175, 50, rl.BLACK);
-        rl.DrawText("speed", 140, 225, 50, rl.BLACK);
-        rl.DrawText(@ptrCast(*const u8, speed_str_slice), 400, 150, 150, rl.BLACK);
+        rl.DrawText("Playback", 140, 155, 50, rl.DARKGRAY);
+        rl.DrawText("speed", 140, 205, 50, rl.DARKGRAY);
+        rl.DrawText(@ptrCast(*const u8, speed_str_slice), 400, 130, 150, rl.DARKGRAY);
+        rl.DrawRectangle(140, 270, @floatToInt(i32, 600.0 * left_level), 15, rl.GRAY);
+        rl.DrawRectangle(140, 285, @floatToInt(i32, 600.0 * right_level), 15, rl.GRAY);
         rl.EndDrawing();
     }
 
